@@ -11,7 +11,7 @@ GSIZEX = 2000
 GSIZEY = 2000
 lockcamera = False
 win = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Testrpg")
+pygame.display.set_caption("Pydew Valley Prototype")
 
 def convcoord(x,y):
     global camera
@@ -95,17 +95,31 @@ def draw_text(surface,text,size,color,x,y):
     font = pygame.font.SysFont("Colsolas",size)
     label = font.render(text,False,color)
     surface.blit(label,(x,y))
-DrawObject((GSIZEX/2),(GSIZEY/2),GSIZEX,GSIZEY,(64,64,64),0,False,False)
+DrawObject((GSIZEX/2),(GSIZEY/2),GSIZEX,GSIZEY,(0,0,0),0,False,False)
+DrawObject(5,5,35,35,(0,255,0),0,False,False)
 player = DrawObject(0,0,25,25,(255,255,255),1,True,True)
-DrawObject(100,100,30,30,(0,255,255),0,False,False)
-DrawObject(-23,-438,100,100,(255,0,0),0,True,False)
+
+DrawObject(-23,-438,100,100,(64,64,64),0,True,False)
+
+def game2local(x,y):
+    return (camera[0] + x,camera[1] + y)
+
+def local2game(x,y):
+    return (camera[0] - x, camera[1] - y)
+
+def get_blocksq():
+    m = pygame.mouse.get_pos()
+    gamepos = local2game(m[0],m[1])
+    blockpos = ((i//50)+1 for i in gamepos)
+    blockpos = list((i*50 for i in blockpos))
+    return game2local(-blockpos[0],-blockpos[1]) #WHY ARE MY AXIS INVERTED
 
 run = True
 clock = pygame.time.Clock()
 tck = 0
 while run:
     tck += 1
-    win.fill((0,0,0))
+    win.fill((255,0,0))
     if not lockcamera:
         camera = (player.gx + WIDTH/2,player.gy + HEIGHT/2)
         #print(camera)
@@ -117,12 +131,15 @@ while run:
                 sys.exit()
                 
     pressed_keys = pygame.key.get_pressed()
-    
     for obj in objlist:
         obj.update(pressed_keys)
         obj.draw(win)
-
+    x = get_blocksq()
+    sq = pygame.Surface((50,50))
+    sq.fill((255,255,255))
+    sq.set_alpha(128)
+    win.blit(sq,pygame.Rect(x[0],x[1],50,50)) #Selected block
         
-    draw_text(win,f"X: {str(int(player.gx))} | Y: {str(int(player.gy))} | FPS: {str(round(clock.get_fps()))}",28,(255,255,255),0,0)
+    draw_text(win,f"X: {str(int(player.gx))} | Y: {str(int(player.gy))} | FPS: {str(round(clock.get_fps()))} | MX: {str(pygame.mouse.get_pos()[0])} | MY: {str(pygame.mouse.get_pos()[1])}",28,(255,255,255),0,0)
     pygame.display.update()
     clock.tick(1000)
