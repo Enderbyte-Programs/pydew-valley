@@ -1,3 +1,4 @@
+import math
 import pygame
 import sys
 import random
@@ -105,20 +106,43 @@ def draw_text(surface,text,size,color,x,y):
     label = font.render(text,False,color)
     surface.blit(label,(x,y))
 
+def checkspawn(coord):
+    x,y = coord
+    lx = x - GBLOCKX / 2
+    ly = y - GBLOCKY / 2
+    if (lx > 5 or lx < -5) or (ly > 5 or ly < -5):
+        return True
+    else:
+        return False
+
+def fixfps():
+    fps = round(clock.get_fps())
+    if fps > 150:
+        return 1
+    elif fps < 151 and fps > 75:
+        return 2
+    elif fps < 76 and fps > 49:
+        return 3
+    elif fps < 50 and fps > 25:
+        return 4
+    elif fps < 26 and fps > 15:
+        return 8
+    else:
+        return 10
 #Drawing terrain
-for i in range(20):
+for i in range(int(round(math.sqrt(GBLOCKX*GBLOCKY))/2)):# Averageing list then /2 to get 20
     ry = random.randint(0,len(grid)-1)
     rx = random.randint(0,len(grid[ry])-1)
-    if (ry > 5 or ry < -5) or (rx> 5 or rx < -5):
+    if checkspawn((rx,ry)):
         grid[rx][ry] = 3 #Assumes rectangle | Drawing rock
     else:
         print("Bad rng for rock " + str(rx) +  ","+str(ry))
 
-for i in range(3):
+for i in range(int(round(math.sqrt(GBLOCKX*GBLOCKY))/2/4)):
     spt = (random.randint(0,len(grid)-1),random.randint(0,len(grid[0])-1))
-    if (spt[0] > 5 or spt[0] < -5) or (spt[1] > 5 or spt[1] < -5):
-        for y in range(spt[0]-2,spt[0]+2):
-            for x in range(spt[1]-2,spt[1]+2):
+    if checkspawn(spt):
+        for y in range(spt[0]-random.randint(1,3),spt[0]+random.randint(0,3)):
+            for x in range(spt[1]-random.randint(1,3),spt[1]+random.randint(0,3)):
                 try:
                     grid[y][x] = 6
                 except:
@@ -126,11 +150,11 @@ for i in range(3):
     else:
         print("Bad rng for water",spt)
 
-for i in range(5):
+for i in range(int(round(math.sqrt(GBLOCKX*GBLOCKY))/2/4)):
     spt = (random.randint(0,len(grid)-1),random.randint(0,len(grid[0])-1))
-    if (spt[0] > 5 or spt[0] < -5) or (spt[1] > 5 or spt[1] < -5):
-        for y in range(spt[0]-2,spt[0]+2):
-            for x in range(spt[1]-2,spt[1]+2):
+    if checkspawn(spt):
+        for y in range(spt[0]-random.randint(1,3),spt[0]+random.randint(0,3)):
+            for x in range(spt[1]-random.randint(1,3),spt[1]+random.randint(0,3)):
                 try:
                     grid[y][x] = 4
                 except:
@@ -138,11 +162,11 @@ for i in range(5):
     else:
         print("Bad RNG for forest",spt)
 
-for i in range(8):
+for i in range(int(round(math.sqrt(GBLOCKX*GBLOCKY))/2//3)):
     spt = (random.randint(0,len(grid)-1),random.randint(0,len(grid[0])-1))
-    if (spt[0] > 5 or spt[0] < -5) or (spt[1] > 5 or spt[1] < -5):
-        for y in range(spt[0]-2,spt[0]+2):
-            for x in range(spt[1]-2,spt[1]+2):
+    if checkspawn(spt):
+        for y in range(spt[0]-random.randint(1,3),spt[0]+random.randint(0,3)):
+            for x in range(spt[1]-random.randint(1,3),spt[1]+random.randint(0,3)):
                 try:
                     grid[y][x] = 5
                 except:
@@ -224,7 +248,11 @@ if not TOOL == 0:
         cim.fill((128,128,128))
 clock = pygame.time.Clock()
 tck = 0
+
 while run:
+    drawrect = pygame.Rect((-50,-50,WIDTH+50,HEIGHT+50))
+    if tck > 10 and tck // 10 == tck /10:
+        player.speed = fixfps()
     tck += 1
     win.fill((0,0,0))
     if not lockcamera:
@@ -252,8 +280,11 @@ while run:
             print(bp)
             # Checking tool
             if TOOL == 1:
-                if grid[bp[1]][bp[0]] == 1:
-                    grid[bp[1]][bp[0]] = 2
+                try:
+                    if grid[bp[1]][bp[0]] == 1:
+                        grid[bp[1]][bp[0]] = 2
+                except IndexError:
+                    pass
 
             del objlist[GRIDSTART:GRIDEND]
             drawgrid(GRIDSTART)
@@ -262,7 +293,8 @@ while run:
     pressed_keys = pygame.key.get_pressed()
     for obj in objlist:
         obj.update(pressed_keys)
-        obj.draw(win)
+        if drawrect.colliderect(obj.rect):
+            obj.draw(win)
     x = get_blocksq()
     sq = pygame.Surface((50,50))
     sq.fill((255,255,255))
@@ -273,4 +305,4 @@ while run:
     if cim is not None:
         win.blit(cim,pygame.mouse.get_pos())
     pygame.display.update()
-    clock.tick(1000)
+    clock.tick()
