@@ -1,8 +1,9 @@
-ID,Name,Colour,Collisions
-0, Void ,"(0,0,0)",No
+ID,Name,Colour,Collisions,Comments
+0, OOM ,"(0,0,0)",No
 1, Grass ,"(0,128,0)",No
 2, Dirt ,"(123,63,0)",No
 3, Rock ,"(64,64,64)",Yes
 4, Dense Forest,"(0,64,0)",Yes
 5, Light Forest,"(64,255,64)",No
 6, Water,"(0,0,255)",No
+7, Void,"(0,0,0)",No,New ID because -0 breaks grid

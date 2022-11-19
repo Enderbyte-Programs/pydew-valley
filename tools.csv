@@ -1,3 +1,8 @@
 ID,Name,Comments
 0,Null,Does not break anything. Default cursor
 1,Shovel,Turns Grass into dirt
+2,Pickaxe,Breaks rock in to dirt
+3,Seed,Upstages dirt>grass>light forest>dense forest
+4,Sponge, Drys water in to dirt 20% chance to be rock
+5,Bucket,Turns block in to water.
+6,Axe,Downstages dense frorest>light forest>grass
